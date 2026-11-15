@@ -84,6 +84,7 @@ struct eval {
     ssize_t recv_count;
     ssize_t round_sent;
     unsigned int round_count;
+    unsigned int dseed;
     
     struct desync_params *dp;
     uint64_t dp_mask;

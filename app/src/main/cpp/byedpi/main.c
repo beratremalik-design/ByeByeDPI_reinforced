@@ -120,6 +120,8 @@ static const char help_text[] = {
     "    -M, --mod-http <h,d,r>    Modify HTTP: hcsmix,dcsmix,rmspace\n"
     "    -r, --tlsrec <pos_t>      Make TLS record at position\n"
     "    -m, --tlsminor <ver>      Change minor version of TLS\n"
+    "    -J, --jitter <num>        Random deviation of split positions, 0-255\n"
+    "                              Deterministic per connection and request\n"
     "    -a, --udp-fake <count>    UDP fakes count, default 0\n"
     #ifdef __linux__
     "    -Y, --drop-sack           Drop packets with SACK extension\n"
@@ -181,6 +183,7 @@ const struct option options[] = {
     {"mod-http",      1, 0, 'M'},
     {"tlsrec",        1, 0, 'r'},
     {"tlsminor",      1, 0, 'm'},
+    {"jitter",        1, 0, 'J'},
     {"udp-fake",      1, 0, 'a'},
     {"def-ttl",       1, 0, 'g'},
     {"wait-send",     0, 0, 'Z'}, //
@@ -1187,6 +1190,14 @@ int parse_args(int argc, char **argv)
             }
             break;
             
+        case 'J':
+            val = strtol(optarg, &end, 0);
+            if (val < 0 || val > 255 || *end)
+                invalid = 1;
+            else
+                dp->jitter = val;
+            break;
+
         case 'a':
             val = strtol(optarg, &end, 0);
             if (val < 0 || val > INT_MAX || *end)

@@ -108,6 +108,7 @@ struct desync_params {
     
     int parts_n;
     struct part *parts;
+    int jitter;
     
     int mod_http;
     int tlsrec_n;

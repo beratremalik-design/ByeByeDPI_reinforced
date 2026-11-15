@@ -484,6 +484,18 @@ static long gen_offset(long pos, int flag,
 }
 
 
+static long jitter_pos(unsigned int seed, unsigned int idx,
+        unsigned int round, int max)
+{
+    unsigned int h = seed ^ (idx * 2654435761u)
+        ^ (round * 0x85ebca6bu);
+    h ^= h >> 13;
+    h *= 0x5bd1e995u;
+    h ^= h >> 15;
+    return (long )(h % (2u * (unsigned int )max + 1)) - max;
+}
+
+
 static void tamp(char *buffer, size_t bfsize, ssize_t *n, 
         const struct desync_params *dp, struct proto_info *info)
 {
@@ -578,6 +590,14 @@ ssize_t desync(struct poolhd *pool,
         long pos = gen_offset(part.pos, part.flag, buffer, n, lp, &info);
         pos += (long )part.s * (part.r - r);
         
+        if (dp.jitter) {
+            if (!val->pair->dseed) {
+                val->pair->dseed = (unsigned int )rand();
+            }
+            pos += jitter_pos(val->pair->dseed, curr_part,
+                val->pair->round_count, dp.jitter);
+        }
+
         if (((skip && pos < skip) 
                 || curr_part < part_skip) && !(part.flag & OFFSET_START)) {
             continue;
