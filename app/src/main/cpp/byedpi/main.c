@@ -109,6 +109,8 @@ static const char help_text[] = {
     #endif
     "    -n, --fake-sni <str>      Change SNI in fake\n"
     "                              Replaced: ? - rand let, # - rand num, * - rand let/num\n"
+    "                              \"pool\" - built-in white SNI list (google.com, ya.ru,\n"
+    "                              microsoft.com, huggingface.co), randomized per request\n"
     #endif
     "    -t, --ttl <num>           TTL of fake packets, default 8\n"
     "    -O, --fake-offset <pos_t> Fake data start offset\n"
@@ -1100,6 +1102,10 @@ int parse_args(int argc, char **argv)
             break;
             
         case 'n':;
+            if (!strcmp(optarg, "pool")) {
+                dp->fake_sni_pool = 1;
+                break;
+            }
             const char **p = add((void *)&dp->fake_sni_list,
                     &dp->fake_sni_count, sizeof(optarg));
             if (!p) {

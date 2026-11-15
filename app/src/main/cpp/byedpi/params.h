@@ -99,6 +99,7 @@ struct desync_params {
     struct part fake_offset;
     int fake_sni_count;
     const char **fake_sni_list;
+    bool fake_sni_pool;
     int fake_mod;
     int fake_tls_size;
     bool drop_sack;

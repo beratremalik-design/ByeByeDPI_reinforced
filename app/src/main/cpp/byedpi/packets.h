@@ -29,6 +29,10 @@ extern char tls_data[517];
 extern char http_data[43];
 extern char udp_data[64];
 
+int sni_pool_size(void);
+
+const char *sni_pool_get(int idx);
+
 int change_tls_sni(const char *host, char *buffer, ssize_t bsize, ssize_t nn);
 
 bool is_tls_chello(const char *buffer, size_t bsize);

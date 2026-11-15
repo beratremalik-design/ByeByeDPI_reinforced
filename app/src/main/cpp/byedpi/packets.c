@@ -53,6 +53,25 @@ char http_data[43] __attribute__((nonstring)) = {
 char udp_data[64] = { 0 };
 
 
+static const char *sni_pool[] = {
+    "google.com", "ya.ru",
+    "microsoft.com", "huggingface.co"
+};
+
+int sni_pool_size(void)
+{
+    return (int )(sizeof(sni_pool) / sizeof(*sni_pool));
+}
+
+const char *sni_pool_get(int idx)
+{
+    if (idx < 0 || idx >= sni_pool_size()) {
+        return sni_pool[0];
+    }
+    return sni_pool[idx];
+}
+
+
 static char *strncasestr(const char *a, size_t as, const char *b, size_t bs)
 {
     for (const char *p = a; ; p++) {

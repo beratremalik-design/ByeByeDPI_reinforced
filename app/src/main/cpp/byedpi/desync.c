@@ -129,8 +129,12 @@ static struct packet get_tcp_fake(const char *buffer, ssize_t n,
         pkt.data = 0; return pkt;
     }
     const char *sni = 0;
-    if (opt->fake_sni_count) {
-        sni = opt->fake_sni_list[rand() % opt->fake_sni_count];
+    int pool_n = opt->fake_sni_pool ? sni_pool_size() : 0;
+    int sni_n = opt->fake_sni_count + pool_n;
+    if (sni_n) {
+        int sidx = rand() % sni_n;
+        sni = sidx < pool_n ?
+            sni_pool_get(sidx) : opt->fake_sni_list[sidx - pool_n];
     }
     do {
         ssize_t f_size = opt->fake_tls_size;
