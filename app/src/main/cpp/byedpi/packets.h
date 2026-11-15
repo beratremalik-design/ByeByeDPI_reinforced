@@ -55,6 +55,8 @@ int part_tls(char *buffer, size_t bsize, ssize_t n, long pos);
 
 void randomize_tls(char *buffer, ssize_t n);
 
+void randomize_fake_tail(char *buffer, ssize_t n);
+
 //bool is_dns_req(char *buffer, size_t n);
 
 //bool is_quic_initial(char *buffer, size_t bsize);

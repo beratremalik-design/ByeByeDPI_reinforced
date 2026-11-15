@@ -115,7 +115,7 @@ static const char help_text[] = {
     "    -t, --ttl <num>           TTL of fake packets, default 8\n"
     "    -O, --fake-offset <pos_t> Fake data start offset\n"
     "    -l, --fake-data <f|:str>  Set custom fake packet\n"
-    "    -Q, --fake-tls-mod <flag> Modify fake TLS CH: rand,orig,msize=<int>\n"
+    "    -Q, --fake-tls-mod <flag> Modify fake TLS CH: rand,orig,msize=<int[:int]>\n"
     "    -e, --oob-data <char>     Set custom OOB data\n"
     "    -M, --mod-http <h,d,r>    Modify HTTP: hcsmix,dcsmix,rmspace\n"
     "    -r, --tlsrec <pos_t>      Make TLS record at position\n"
@@ -1086,8 +1086,16 @@ int parse_args(int argc, char **argv)
                     case 'm': 
                         if ((end = strchr(end, '='))) {
                             val = strtol(end + 1, &end, 0);
-                            if (!(val > INT_MAX || (*end && *end != ','))) {
+                            long val2 = val;
+                            if (*end == ':') {
+                                val2 = strtol(end + 1, &end, 0);
+                            }
+                            if (!(val > INT_MAX || val2 > INT_MAX
+                                    || val2 < val
+                                    || (*end && *end != ','))) {
                                 dp->fake_tls_size = val;
+                                dp->fake_tls_size_max = (
+                                    val2 > val ? (int )val2 : 0);
                                 break;
                             }
                         }

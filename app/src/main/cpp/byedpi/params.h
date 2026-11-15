@@ -102,6 +102,7 @@ struct desync_params {
     bool fake_sni_pool;
     int fake_mod;
     int fake_tls_size;
+    int fake_tls_size_max;
     bool drop_sack;
     char oob_char[2];
     

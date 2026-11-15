@@ -307,6 +307,9 @@ int change_tls_sni(const char *host, char *buffer, ssize_t n, ssize_t nn)
     }
     if (avail < -50) {
         avail += remove_ks_group(buffer, n, skip, 0x11ec);
+        if (avail < -50) {
+            avail += remove_tls_ext(buffer, n, skip, 0x0033);
+        }
     }
     static const uint16_t exts[] = { 
         0x0015, // padding
@@ -318,6 +321,12 @@ int change_tls_sni(const char *host, char *buffer, ssize_t n, ssize_t nn)
         0x0022, // delegated_credentials
         0x0012, // signed_certificate_timestamp
         0x001b, // compress_certificate
+        0x002d, // psk_key_exchange_modes
+        0x0017, // extended_master_secret
+        0x0016, // encrypt_then_mac
+        0x000b, // ec_point_formats
+        0x000a, // supported_groups
+        0x000d, // signature_algorithms
         0
     };
     for (const uint16_t *e = exts; avail && avail < 4; e++) {
@@ -635,5 +644,30 @@ void randomize_tls(char *buffer, ssize_t n)
         }
         gen_rand_array(buffer + g_offs + 4, g_sz);
         g_offs += 4 + g_sz;
+    }
+}
+
+
+void randomize_fake_tail(char *buffer, ssize_t n)
+{
+    if (n < 5) {
+        return;
+    }
+    long rec_end = 5 + ANTOHS(buffer, 3);
+    if (rec_end > n) {
+        return;
+    }
+    size_t skip = find_ext_block(buffer, n);
+    if (skip) {
+        ssize_t poffs = find_tls_ext_offset(0x0015, buffer, n, skip);
+        if (poffs && poffs + 4 <= rec_end) {
+            ssize_t psz = ANTOHS(buffer, poffs + 2);
+            if (psz > 0 && poffs + 4 + psz <= rec_end) {
+                gen_rand_array(buffer + poffs + 4, psz);
+            }
+        }
+    }
+    if (n > rec_end) {
+        gen_rand_array(buffer + rec_end, n - rec_end);
     }
 }

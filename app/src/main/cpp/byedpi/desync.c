@@ -121,7 +121,21 @@ static struct packet get_tcp_fake(const char *buffer, ssize_t n,
         }
         pkt = info->type == IS_HTTP ? fake_http : fake_tls;
     }
+    ssize_t f_size = opt->fake_tls_size;
+    if (opt->fake_tls_size_max > opt->fake_tls_size) {
+        f_size += rand() % (opt->fake_tls_size_max
+            - opt->fake_tls_size + 1);
+    }
+    if (f_size < 0) {
+        f_size = n + f_size;
+    }
+    if (f_size > n || f_size <= 0) {
+        f_size = n;
+    }
     ssize_t ps = n > pkt.size ? n : pkt.size;
+    if (f_size + 5 > ps) {
+        ps = f_size + 5;
+    }
     
     char *p = alloc_pktd(ps);
     if (!p) {
@@ -137,13 +151,6 @@ static struct packet get_tcp_fake(const char *buffer, ssize_t n,
             sni_pool_get(sidx) : opt->fake_sni_list[sidx - pool_n];
     }
     do {
-        ssize_t f_size = opt->fake_tls_size;
-        if (f_size < 0) {
-            f_size = n + f_size;
-        }
-        if (f_size > n || f_size <= 0) {
-            f_size = n;
-        }
         if ((opt->fake_mod & FM_ORIG) && info->type == IS_HTTPS) {
             memcpy(p, buffer, n);
             
@@ -160,6 +167,9 @@ static struct packet get_tcp_fake(const char *buffer, ssize_t n,
     
     if (opt->fake_mod & FM_RAND) {
         randomize_tls(p, ps);
+        if (!opt->fake_data.data) {
+            randomize_fake_tail(p, ps);
+        }
     }
     pkt.data = p;
     pkt.size = ps;
