@@ -220,6 +220,10 @@ class MainActivity : BaseActivity() {
             startActivity(Intent(this, TestActivity::class.java))
         }
 
+        binding.probeButton.setOnClickListener {
+            runQuickProbe()
+        }
+
         binding.domainListsButton.setOnClickListener {
             val intent = Intent(this, TestSettingsActivity::class.java)
             intent.putExtra("open_fragment", "domain_lists")
@@ -377,6 +381,63 @@ class MainActivity : BaseActivity() {
 
     private fun stop() {
         ServiceManager.stop()
+    }
+
+    /** D3: быстрая проба старта видео (6 доменов, 1 запрос). */
+    private var probeRunning = false
+
+    private fun runQuickProbe() {
+        if (TestService.isRunning) {
+            Toast.makeText(this, R.string.test_unavailable, Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (probeRunning) return
+        probeRunning = true
+        Toast.makeText(this, R.string.probe_running, Toast.LENGTH_SHORT).show()
+
+        lifecycleScope.launch {
+            try {
+                val results = QuickProbe.run(this@MainActivity)
+                showProbeDialog(results)
+            } catch (e: Exception) {
+                Log.e(TAG, "Quick probe failed", e)
+                Toast.makeText(this@MainActivity, R.string.probe_failed, Toast.LENGTH_SHORT).show()
+            } finally {
+                probeRunning = false
+            }
+        }
+    }
+
+    private fun showProbeDialog(results: List<SiteResult>) {
+        val passed = results.sumOf { it.successCount }
+        val text = buildString {
+            appendLine(getString(R.string.probe_result_summary, passed, results.size))
+            appendLine()
+            results.forEach { site ->
+                appendLine("${site.site} — ${site.successCount}/${site.totalCount}")
+            }
+            appendLine()
+            if (passed == results.size) {
+                appendLine(getString(R.string.probe_all_ok))
+            } else {
+                results.filter { it.successCount < it.totalCount }.forEach { site ->
+                    when {
+                        site.site == "youtubei.googleapis.com" ->
+                            appendLine(getString(R.string.probe_youtubei_fail))
+                        site.site.startsWith("rr1---sn-xguxaxjvh-gufl") ->
+                            appendLine(getString(R.string.probe_gufl_fail))
+                        else ->
+                            appendLine(getString(R.string.probe_other_fail, site.site))
+                    }
+                }
+            }
+        }
+
+        AlertDialog.Builder(this)
+            .setTitle(getString(R.string.probe_result_title, passed, results.size))
+            .setMessage(text)
+            .setPositiveButton(android.R.string.ok, null)
+            .show()
     }
 
     private fun updateStatus() {

@@ -205,6 +205,17 @@
     <string name="domain_list_reset">Reset lists</string>
     <string name="domain_list_reset_done">Lists have been reset</string>
     <string name="main_btn_test">Test</string>
+    <!-- Quick video-start probe (D3) -->
+    <string name="main_btn_probe">Probe</string>
+    <string name="probe_running">Quick start probe is running…</string>
+    <string name="probe_failed">Quick probe failed</string>
+    <string name="probe_result_title">Start probe: %1$d/%2$d</string>
+    <string name="probe_result_summary">Video/shorts start domains, 1 request per domain:</string>
+    <string name="probe_all_ok">Video start should proceed without stalls</string>
+    <string name="probe_youtubei_fail">youtubei unavailable — stalls at the very beginning of videos are expected (the player gets no API response)</string>
+    <string name="probe_gufl_fail">gufl did not respond — a known chronic flake, noise; not a sign of degradation</string>
+    <string name="probe_other_fail">%1$s did not respond — may slow down the video start</string>
+
     <string name="main_btn_list">Lists</string>
     <string name="donate">Donate</string>
     <string name="donate_message">If the app has been useful to you, you can buy me a cup of coffee ☕️</string>
