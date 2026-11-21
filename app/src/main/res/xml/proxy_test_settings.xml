@@ -38,7 +38,7 @@
         android:key="byedpi_proxytest_sni"
         android:title="@string/test_settings_sni"
         android:inputType="text"
-        android:defaultValue="google.com"
+        android:defaultValue="ya.ru"
         app:useSimpleSummaryProvider="true"
         app:iconSpaceReserved="false" />
 

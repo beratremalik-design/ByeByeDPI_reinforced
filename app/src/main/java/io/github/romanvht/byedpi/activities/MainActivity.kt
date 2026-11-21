@@ -236,6 +236,8 @@ class MainActivity : BaseActivity() {
             requestBatteryOptimization()
         }
 
+        migrateFakeSni()
+
         if (!TestService.isRunning && getPreferences().getBoolean("auto_connect", false) &&
             appStatus.first != AppStatus.Running) {
             this.start()
@@ -529,5 +531,26 @@ class MainActivity : BaseActivity() {
             PermissionUtils.requestBatteryOptimization(this)
             preferences.edit { putBoolean(BATTERY_OPTIMIZATION_REQUESTED, true) }
         }
+    }
+
+    /**
+     * D4: замена дефолтного SNI автотеста/фейков с google.com на ya.ru
+     * (см. patches_D1_D2_spec.md §4: ya.ru дал 3 прохода из 6 на youtubei,
+     * google.com — 0 из 2; цена замены нулевая, SNI белый для ядра).
+     * Явно изменённое пользователем значение (не null и не google.com) не трогаем.
+     */
+    private fun migrateFakeSni() {
+        val preferences = getPreferences()
+        if (preferences.getBoolean("byedpi_sni_migrated_v1", false)) return
+
+        val current = preferences.getString("byedpi_proxytest_sni", null)
+        if (current == null || current == "google.com") {
+            preferences.edit { putString("byedpi_proxytest_sni", "ya.ru") }
+        }
+        val uiSni = preferences.getString("byedpi_fake_sni", null)
+        if (uiSni == null || uiSni == "www.iana.org") {
+            preferences.edit { putString("byedpi_fake_sni", "ya.ru") }
+        }
+        preferences.edit { putBoolean("byedpi_sni_migrated_v1", true) }
     }
 }

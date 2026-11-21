@@ -336,7 +336,7 @@ class TestService : Service() {
     private fun loadSettings(): TestSettings {
         val prefs = getPreferences()
         val userCommands = prefs.getBoolean("byedpi_proxytest_usercommands", false)
-        val sniValue = prefs.getStringNotNull("byedpi_proxytest_sni", "google.com")
+        val sniValue = prefs.getStringNotNull("byedpi_proxytest_sni", "ya.ru")
         val content = if (userCommands) prefs.getStringNotNull("byedpi_proxytest_commands", "")
         else assets.open("proxytest_strategies.list").bufferedReader().use { it.readText() }
         val commands = content.replace("{sni}", "\"${sniValue}\"").lines().map { it.trim() }.filter { it.isNotEmpty() }

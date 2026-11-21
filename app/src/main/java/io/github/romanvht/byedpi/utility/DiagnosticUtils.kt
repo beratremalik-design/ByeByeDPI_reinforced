@@ -113,7 +113,7 @@ object DiagnosticUtils {
             appendLine(value(
                 context,
                 R.string.test_settings_sni,
-                preferences.getStringNotNull("byedpi_proxytest_sni", "google.com")
+                preferences.getStringNotNull("byedpi_proxytest_sni", "ya.ru")
             ))
             appendLine(value(
                 context,
