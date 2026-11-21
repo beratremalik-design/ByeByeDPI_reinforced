@@ -9,6 +9,7 @@ import android.os.Build
 import android.util.Log
 import io.github.romanvht.byedpi.R
 import io.github.romanvht.byedpi.data.*
+import io.github.romanvht.byedpi.utility.AutopilotManager
 import io.github.romanvht.byedpi.utility.createPauseNotification
 import io.github.romanvht.byedpi.utility.registerNotificationChannel
 import kotlinx.coroutines.*
@@ -158,6 +159,13 @@ object ServiceManager {
             stopSession(previous)
         }
         if (TestService.isRunning || commands.get() != command) return@withLock false
+
+        // P6-заготовка: ротация автоподбор-стратегий перед каждым стартом движка
+        try {
+            AutopilotManager.beforeEngineStart(app)
+        } catch (e: Exception) {
+            Log.w(TAG, "Rotation failed", e)
+        }
 
         val current = Session(mode, NativeEngine(app, mode))
         session = current

@@ -168,6 +168,23 @@
     <string name="proxytest_requests_desc">A higher number increases accuracy but may reduce stability</string>
     <string name="proxytest_limit_desc">A higher number increases test speed but may reduce stability</string>
     <string name="proxytest_timeout_desc">A higher number reduces test speed but improves stability</string>
+    <!-- Strategy autopilot (D2) -->
+    <string name="autopilot_channel">Autopilot</string>
+    <string name="autopilot_category">Strategy autopilot</string>
+    <string name="autopilot_enabled">Autopilot on startup</string>
+    <string name="autopilot_enabled_summary">Silently test the built-in pack of 30 strategies and apply the best one. Only the default strategy or a previous autopilot pick is replaced silently; your own strategy is never overwritten</string>
+    <string name="autopilot_run_now">Run autopilot now</string>
+    <string name="autopilot_started">Strategy autopilot is running (~5–10 minutes)</string>
+    <string name="autopilot_proposal_title">Autopilot found a strategy</string>
+    <string name="autopilot_proposal_text">Your strategy was not changed automatically. Found candidate:</string>
+    <string name="autopilot_apply">Apply</string>
+    <string name="autopilot_decline">Later</string>
+    <string name="autopilot_state_none">Never run yet</string>
+    <string name="autopilot_state_ok">Applied #%1$d (%2$s): %3$d/%4$d</string>
+    <string name="autopilot_state_unresolved">No confident candidate found; will retry in a day</string>
+    <string name="rotation_enabled">Strategy rotation (V3a → C → Z1 → V4b)</string>
+    <string name="rotation_enabled_summary">Next strategy from the rotation core on every engine start; enable after the autopilot stabilizes</string>
+
     <string name="domain_lists">Domain Lists</string>
     <string name="domain_lists_summary">Managing domain lists for testing</string>
     <string name="domain_list_add_new">Add new list</string>

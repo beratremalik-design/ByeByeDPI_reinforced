@@ -38,6 +38,10 @@ class TestService : Service() {
         private const val CHANNEL = "Proxy test"
         private const val RESULTS_FILE = "proxy_test_results.json"
         private const val NOTIFICATION_ID = 4
+        /** Источник стратегий: встроенный asset-список, пак D2 или команды пользователя. */
+        const val SOURCE_ASSET = "asset"
+        const val SOURCE_PACK = "pack"
+        const val EXTRA_SOURCE = "extra_source"
         private val mutableState = MutableStateFlow(TestState())
         private val resultsLock = Any()
         val state: StateFlow<TestState> = mutableState.asStateFlow()
@@ -45,6 +49,14 @@ class TestService : Service() {
             get() = state.value.isRunning
 
         fun start(context: Context) {
+            start(context, null)
+        }
+
+        /**
+         * @param sourceOverride источник этого прогона (например SOURCE_PACK
+         * для автоподбора); не меняет настройки пользователя.
+         */
+        fun start(context: Context, sourceOverride: String?) {
             if (isRunning) return
             ServiceManager.refresh(context)
             val previous = state.value
@@ -57,7 +69,9 @@ class TestService : Service() {
                 wasInterrupted = false,
             )
             try {
-                ContextCompat.startForegroundService(context, Intent(context, TestService::class.java).setAction(START_ACTION))
+                val intent = Intent(context, TestService::class.java).setAction(START_ACTION)
+                if (sourceOverride != null) intent.putExtra(EXTRA_SOURCE, sourceOverride)
+                ContextCompat.startForegroundService(context, intent)
             } catch (e: Exception) {
                 mutableState.value = previous.copy(failed = true)
                 Log.e(TAG, "Failed to start proxy tests", e)
@@ -111,6 +125,8 @@ class TestService : Service() {
     private var destroyed = false
     private var notifiedStrategy = -1
     private var notifiedCompleted = -1
+    /** Источник стратегий текущего прогона (из intent extra), см. EXTRA_SOURCE. */
+    private var sourceOverride: String? = null
 
     override fun onCreate() {
         super.onCreate()
@@ -124,6 +140,7 @@ class TestService : Service() {
         when (intent?.action) {
             START_ACTION -> {
                 try {
+                    sourceOverride = intent?.getStringExtra(EXTRA_SOURCE)
                     startForeground()
                     if (!isRunning) {
                         @Suppress("DEPRECATION")
@@ -186,6 +203,7 @@ class TestService : Service() {
                     Toast.makeText(this@TestService, R.string.test_settings_domain_empty, Toast.LENGTH_LONG).show()
                     return@launch
                 }
+                Log.i(TAG, "Proxy test source=${options.source}, strategies=${options.commands.size}, sites=${options.sites.size}")
                 strategies.addAll(options.commands.map { StrategyResult(command = it) })
                 prepared = true
                 getPreferences().edit(commit = true) { putBoolean("is_test_running", true) }
@@ -235,6 +253,14 @@ class TestService : Service() {
                         } catch (e: Exception) {
                             Log.e(TAG, "Failed to save proxy test results", e)
                             failed = true
+                        }
+                        // D2: по завершении прогона из пака — автоподбор лучшей стратегии
+                        if (settings?.source == SOURCE_PACK) {
+                            try {
+                                AutopilotManager.onPackTestCompleted(this@TestService, snapshot(strategies))
+                            } catch (e: Exception) {
+                                Log.e(TAG, "Autopilot failed to apply results", e)
+                            }
                         }
                         getPreferences().edit(commit = true) { putBoolean("is_test_running", false) }
                     }
@@ -336,9 +362,16 @@ class TestService : Service() {
     private fun loadSettings(): TestSettings {
         val prefs = getPreferences()
         val userCommands = prefs.getBoolean("byedpi_proxytest_usercommands", false)
+        // Источник: intent-override (автоподбор) > настройка. Свой список
+        // стратегий (usercommands) сохраняет приоритет над источником пака.
+        val source = sourceOverride
+            ?: prefs.getStringNotNull("byedpi_proxytest_source", SOURCE_ASSET)
         val sniValue = prefs.getStringNotNull("byedpi_proxytest_sni", "ya.ru")
-        val content = if (userCommands) prefs.getStringNotNull("byedpi_proxytest_commands", "")
-        else assets.open("proxytest_strategies.list").bufferedReader().use { it.readText() }
+        val content = when {
+            userCommands -> prefs.getStringNotNull("byedpi_proxytest_commands", "")
+            source == SOURCE_PACK -> DefaultStrategyPack.PACK.joinToString("\n")
+            else -> assets.open("proxytest_strategies.list").bufferedReader().use { it.readText() }
+        }
         val commands = content.replace("{sni}", "\"${sniValue}\"").lines().map { it.trim() }.filter { it.isNotEmpty() }
         val host = prefs.getStringNotNull("byedpi_proxy_ip", "127.0.0.1")
         val port = prefs.getIntStringNotNull("byedpi_proxy_port", 1080)
@@ -348,7 +381,7 @@ class TestService : Service() {
         val requestLimit = prefs.getIntStringNotNull("byedpi_proxytest_limit", 20).coerceAtLeast(1)
         DomainListUtils.syncLists(this)
         return TestSettings(DomainListUtils.getActiveDomains(this).toList(), commands, host, port,
-            delaySec, requestsCount, requestTimeout, requestLimit)
+            delaySec, requestsCount, requestTimeout, requestLimit, source)
     }
 
     private fun resetStrategyResult(strategy: StrategyResult, settings: TestSettings) {

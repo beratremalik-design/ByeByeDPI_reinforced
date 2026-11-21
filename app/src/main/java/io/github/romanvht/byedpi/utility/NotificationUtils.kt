@@ -12,11 +12,63 @@ import androidx.annotation.StringRes
 import androidx.core.app.NotificationCompat
 import io.github.romanvht.byedpi.R
 import io.github.romanvht.byedpi.activities.MainActivity
+import io.github.romanvht.byedpi.activities.TestActivity
 import io.github.romanvht.byedpi.data.Mode
 import io.github.romanvht.byedpi.data.PAUSE_ACTION
 import io.github.romanvht.byedpi.data.RESUME_ACTION
 import io.github.romanvht.byedpi.data.STOP_ACTION
+import io.github.romanvht.byedpi.receiver.AutopilotReceiver
 import io.github.romanvht.byedpi.receiver.ServiceActionReceiver
+
+private const val AUTOPILOT_CHANNEL = "Autopilot"
+
+/** Идентификатор уведомления-предложения автоподбора (D2). */
+const val AUTOPILOT_NOTIFICATION_ID = 5
+
+/**
+ * D2: уведомление «Автоподбор нашёл стратегию — применить?».
+ * Показывается, когда автопилот не может применить стратегию молча
+ * (у пользователя своя стратегия или UI-режим).
+ */
+fun showAutopilotProposal(context: Context, command: String) {
+    registerNotificationChannel(context, AUTOPILOT_CHANNEL, R.string.autopilot_channel)
+    val manager = context.getSystemService(NotificationManager::class.java) ?: return
+
+    val applyIntent = Intent(context, AutopilotReceiver::class.java)
+        .setAction(AutopilotReceiver.ACTION_APPLY)
+        .putExtra(AutopilotReceiver.EXTRA_COMMAND, command)
+    val declineIntent = Intent(context, AutopilotReceiver::class.java)
+        .setAction(AutopilotReceiver.ACTION_DECLINE)
+
+    val notification = NotificationCompat.Builder(context, AUTOPILOT_CHANNEL)
+        .setSmallIcon(R.drawable.ic_notification)
+        .setContentTitle(context.getString(R.string.autopilot_proposal_title))
+        .setContentText(command)
+        .setStyle(NotificationCompat.BigTextStyle()
+            .bigText(context.getString(R.string.autopilot_proposal_text) + "\n\n" + command))
+        .addAction(0, context.getString(R.string.autopilot_apply),
+            PendingIntent.getBroadcast(
+                context, 0, applyIntent,
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+            )
+        )
+        .addAction(0, context.getString(R.string.autopilot_decline),
+            PendingIntent.getBroadcast(
+                context, 1, declineIntent,
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+            )
+        )
+        .setContentIntent(
+            PendingIntent.getActivity(
+                context, 0,
+                Intent(context, TestActivity::class.java),
+                PendingIntent.FLAG_IMMUTABLE,
+            )
+        )
+        .setAutoCancel(true)
+        .build()
+    manager.notify(AUTOPILOT_NOTIFICATION_ID, notification)
+}
 
 fun registerNotificationChannel(context: Context, id: String, @StringRes name: Int) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

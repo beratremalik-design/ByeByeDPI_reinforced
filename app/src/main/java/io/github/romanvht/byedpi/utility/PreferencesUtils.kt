@@ -7,7 +7,8 @@ import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
 import io.github.romanvht.byedpi.data.Mode
 
-private const val DEFAULT_CMD_ARGS = "-o1 -a1 -r-5+se"
+/** Стратегия по умолчанию (голый коврик); публична для AutopilotManager (D2). */
+const val DEFAULT_CMD_ARGS = "-o1 -a1 -r-5+se"
 
 val PreferenceFragmentCompat.sharedPreferences
     get() = preferenceScreen.sharedPreferences

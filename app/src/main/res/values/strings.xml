@@ -168,6 +168,23 @@
     <string name="proxytest_requests_desc">Увеличение значения повышает точность, но может снизить стабильность</string>
     <string name="proxytest_limit_desc">Увеличение значения ускоряет тест, но может снизить стабильность</string>
     <string name="proxytest_timeout_desc">Увеличение значения замедляет тест, но повышает стабильность и точность</string>
+    <!-- Автоподбор стратегии (D2) -->
+    <string name="autopilot_channel">Автоподбор</string>
+    <string name="autopilot_category">Автоподбор стратегии</string>
+    <string name="autopilot_enabled">Автоподбор при запуске</string>
+    <string name="autopilot_enabled_summary">Тихо проверить встроенный пак из 30 стратегий и применить лучшую. Молча меняется только стратегия по умолчанию или прошлый автоподбор; свою стратегию автопилот не перезаписывает</string>
+    <string name="autopilot_run_now">Запустить автоподбор сейчас</string>
+    <string name="autopilot_started">Идёт автоподбор стратегии (~5–10 минут)</string>
+    <string name="autopilot_proposal_title">Автоподбор нашёл стратегию</string>
+    <string name="autopilot_proposal_text">Ваша стратегия не изменена автоматически. Найденный вариант:</string>
+    <string name="autopilot_apply">Применить</string>
+    <string name="autopilot_decline">Позже</string>
+    <string name="autopilot_state_none">Ещё не запускался</string>
+    <string name="autopilot_state_ok">Применена №%1$d (%2$s): %3$d/%4$d</string>
+    <string name="autopilot_state_unresolved">Уверенный кандидат не найден; повтор через сутки</string>
+    <string name="rotation_enabled">Ротация стратегий (V3a → C → Z1 → V4b)</string>
+    <string name="rotation_enabled_summary">Следующая стратегия из ядра ротации на каждом запуске движка; включать после стабилизации автоподбора</string>
+
     <string name="domain_lists">Списки доменов</string>
     <string name="domain_lists_summary">Управление списками доменов для тестирования</string>
     <string name="domain_list_add_new">Добавить список</string>

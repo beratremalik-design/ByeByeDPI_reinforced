@@ -62,4 +62,29 @@
         app:useSimpleSummaryProvider="true"
         app:iconSpaceReserved="false" />
 
+    <PreferenceCategory
+        android:title="@string/autopilot_category"
+        app:iconSpaceReserved="false">
+
+        <SwitchPreference
+            android:key="byedpi_autopilot_enabled"
+            android:title="@string/autopilot_enabled"
+            android:summary="@string/autopilot_enabled_summary"
+            android:defaultValue="true"
+            app:iconSpaceReserved="false" />
+
+        <Preference
+            android:key="run_autopilot"
+            android:title="@string/autopilot_run_now"
+            app:iconSpaceReserved="false" />
+
+        <SwitchPreference
+            android:key="byedpi_rotation_enabled"
+            android:title="@string/rotation_enabled"
+            android:summary="@string/rotation_enabled_summary"
+            android:defaultValue="false"
+            app:iconSpaceReserved="false" />
+
+    </PreferenceCategory>
+
 </PreferenceScreen>

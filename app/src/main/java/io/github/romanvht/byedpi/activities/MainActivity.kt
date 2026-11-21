@@ -238,6 +238,17 @@ class MainActivity : BaseActivity() {
 
         migrateFakeSni()
 
+        // D2: тихий автоподбор стратегии из встроенного пака при запуске.
+        // Небольшая задержка — дать ServiceManager.refresh восстановить статус.
+        lifecycleScope.launch {
+            kotlinx.coroutines.delay(1200)
+            try {
+                AutopilotManager.maybeRunStartup(this@MainActivity)
+            } catch (e: Exception) {
+                Log.e(TAG, "Autopilot startup failed", e)
+            }
+        }
+
         if (!TestService.isRunning && getPreferences().getBoolean("auto_connect", false) &&
             appStatus.first != AppStatus.Running) {
             this.start()

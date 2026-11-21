@@ -2,8 +2,11 @@ package io.github.romanvht.byedpi.fragments
 
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.widget.Toast
 import androidx.preference.*
 import io.github.romanvht.byedpi.R
+import io.github.romanvht.byedpi.services.TestService
+import io.github.romanvht.byedpi.utility.AutopilotManager
 import io.github.romanvht.byedpi.utility.*
 
 class ProxyTestSettingsFragment : PreferenceFragmentCompat() {
@@ -28,6 +31,8 @@ class ProxyTestSettingsFragment : PreferenceFragmentCompat() {
 
         setEditTestPreferenceListenerDomain("byedpi_proxytest_sni")
 
+        setupAutopilot()
+
         updatePreferences()
     }
 
@@ -46,6 +51,7 @@ class ProxyTestSettingsFragment : PreferenceFragmentCompat() {
         val switchUserCommands = findPreferenceNotNull<SwitchPreference>("byedpi_proxytest_usercommands")
         val textUserCommands = findPreferenceNotNull<EditTextPreference>("byedpi_proxytest_commands")
         val manageDomainLists = findPreferenceNotNull<Preference>("manage_domain_lists")
+        val runAutopilot = findPreferenceNotNull<Preference>("run_autopilot")
         val activeLists = DomainListUtils.getLists(requireContext()).filter { it.isActive }
 
         manageDomainLists.summary = if (activeLists.isEmpty()) {
@@ -55,6 +61,21 @@ class ProxyTestSettingsFragment : PreferenceFragmentCompat() {
         }
 
         textUserCommands.isEnabled = switchUserCommands.isChecked
+        runAutopilot.summary = AutopilotManager.stateDescription(requireContext())
+    }
+
+    /** D2: ручной запуск автоподбора по паку 30 стратегий. */
+    private fun setupAutopilot() {
+        val runAutopilot = findPreferenceNotNull<Preference>("run_autopilot")
+        runAutopilot.setOnPreferenceClickListener {
+            if (TestService.isRunning) {
+                Toast.makeText(requireContext(), R.string.test_unavailable, Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(requireContext(), R.string.autopilot_started, Toast.LENGTH_LONG).show()
+                TestService.start(requireContext(), TestService.SOURCE_PACK)
+            }
+            true
+        }
     }
 
     private fun setupNumberSummary(key: String, descriptionResId: Int) {
