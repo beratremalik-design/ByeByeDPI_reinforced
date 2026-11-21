@@ -103,6 +103,13 @@
             android:defaultValue="false"
             app:iconSpaceReserved="false" />
 
+        <CheckBoxPreference
+            android:key="byedpi_block_quic"
+            android:title="@string/byedpi_block_quic_setting"
+            android:summary="@string/byedpi_block_quic_summary"
+            android:defaultValue="false"
+            app:iconSpaceReserved="false" />
+
         <EditTextPreference
             android:key="byedpi_fake_ttl"
             android:title="@string/byedpi_fake_ttl_setting"

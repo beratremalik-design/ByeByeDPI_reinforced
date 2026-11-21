@@ -52,6 +52,7 @@ fun List<String>.checkIpAndPortInArgs(): Pair<String?, String?> {
     val flags = setOf(
         "--daemon", "--no-domain", "--no-ipv6", "--no-udp", "--help", "--version",
         "--transparent", "--tfo", "--md5sig", "--wait-send", "--drop-sack",
+        "--drop-quic",
     )
     var host: String? = null
     var port: String? = null

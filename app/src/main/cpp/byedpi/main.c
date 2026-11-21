@@ -123,6 +123,8 @@ static const char help_text[] = {
     "    -J, --jitter <num>        Random deviation of split positions, 0-255\n"
     "                              Deterministic per connection and request\n"
     "    -a, --udp-fake <count>    UDP fakes count, default 0\n"
+    "    -k, --drop-quic           Silently drop UDP packets to port 443 (QUIC),\n"
+    "                              client falls back to TCP/TLS after timeout\n"
     #ifdef __linux__
     "    -Y, --drop-sack           Drop packets with SACK extension\n"
     #endif
@@ -185,6 +187,7 @@ const struct option options[] = {
     {"tlsminor",      1, 0, 'm'},
     {"jitter",        1, 0, 'J'},
     {"udp-fake",      1, 0, 'a'},
+    {"drop-quic",     0, 0, 'k'}, // short-only slot (parse_args builds the opt string from this table)
     {"def-ttl",       1, 0, 'g'},
     {"wait-send",     0, 0, 'Z'}, //
     {"await-int",     1, 0, 'W'}, //
@@ -747,6 +750,9 @@ int parse_args(int argc, char **argv)
             break;
         case 'U':
             params.udp = 0;
+            break;
+        case 'k':
+            params.drop_quic = 1;
             break;
         #ifdef __linux__
         case 'E':

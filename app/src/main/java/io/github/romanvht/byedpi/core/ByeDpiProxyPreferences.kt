@@ -149,6 +149,8 @@ class ByeDpiProxyUIPreferences(val settings: UISettings = UISettings()) : ByeDpi
 
             if (settings.tcpFastOpen) args.add("-F")
             if (settings.dropSack) args.add("-Y")
+            // P8: блокировка QUIC (UDP/443) на уровне ядра
+            if (settings.blockQuic) args.add("--drop-quic")
 
             args.add("-An")
 

@@ -30,6 +30,7 @@ data class UISettings(
     val udpFakeCount: Int = 1,
     val dropSack: Boolean = false,
     val fakeOffset: Int = 0,
+    val blockQuic: Boolean = false,
 ) {
     enum class DesyncMethod {
         None, Split, Disorder, Fake, OOB, DISOOB;
@@ -96,6 +97,7 @@ data class UISettings(
                 udpFakeCount = preferences.getString("byedpi_udp_fake_count", null)?.toIntOrNull() ?: 1,
                 dropSack = preferences.getBoolean("byedpi_drop_sack", false),
                 fakeOffset = preferences.getString("byedpi_fake_offset", null)?.toIntOrNull() ?: 0,
+                blockQuic = preferences.getBoolean("byedpi_block_quic", false),
                 hostsMode = hostsMode,
                 hosts = hosts,
             )

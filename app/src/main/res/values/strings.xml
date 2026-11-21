@@ -86,6 +86,8 @@
     <string name="ipv6_setting">IPv6</string>
     <string name="byedpi_fake_offset_setting">Смещение поддельных пакетов</string>
     <string name="byedpi_drop_sack_setting">Отбрасывать SACK</string>
+    <string name="byedpi_block_quic_setting">Блокировать QUIC (UDP/443)</string>
+    <string name="byedpi_block_quic_summary">Молча отбрасывать UDP-пакеты на порт 443: YouTube откатится на TCP/TLS. DNS и прочий UDP не затрагиваются; проверяйте на «зависаниях» старта роликов</string>
     <string name="desync_udp_category">UDP</string>
     <string name="desync_http_category">HTTP</string>
     <string name="desync_https_category">HTTPS</string>

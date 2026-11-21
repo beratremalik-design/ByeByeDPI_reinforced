@@ -790,6 +790,13 @@ int on_udp_tunnel(struct poolhd *pool, struct eval *val, int et)
                 LOG(LOG_E, "udp parse error\n");
                 return -1;
             }
+            /* P8: silent QUIC drop — kill UDP/443 sessions so the client
+             * falls back to TCP/TLS (works for QUIC throttling pattern).
+             * Unlike -U/--no-udp, DNS (UDP53) and other UDP stay alive. */
+            if (params.drop_quic && ntohs(addr.in.sin_port) == 443) {
+                LOG(LOG_S, "drop quic packet: %zd bytes\n", n - offs);
+                continue;
+            }
             if (!pair->addr.in.sin_port) {
                 if (params.baddr.sa.sa_family == AF_INET6) {
                     map_fix(&addr, 6);
