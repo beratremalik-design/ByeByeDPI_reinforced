@@ -220,7 +220,7 @@ class MainActivity : BaseActivity() {
             startActivity(Intent(this, TestActivity::class.java))
         }
 
-        binding.probeButton.setOnClickListener {
+        binding.probeButton?.setOnClickListener {
             runQuickProbe()
         }
 

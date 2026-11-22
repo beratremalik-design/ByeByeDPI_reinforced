@@ -8,7 +8,6 @@ import io.github.romanvht.byedpi.data.SiteResult
 import io.github.romanvht.byedpi.services.NativeEngine
 import io.github.romanvht.byedpi.services.appStatus
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.runCatching
 
 /**
  * D3: быстрая проба старта видео/шортса — 6 доменов, достаточных для
@@ -51,7 +50,7 @@ object QuickProbe {
                 engine.start(NativeEngine.configuration(app))
                 delay(600)
             }
-            val results = SiteCheckUtils(ip, port).checkSitesAsync(
+            val results = SiteCheckUtils(ip, port.toInt()).checkSitesAsync(
                 sites = SITES,
                 requestsCount = 1,
                 requestTimeout = 5,
