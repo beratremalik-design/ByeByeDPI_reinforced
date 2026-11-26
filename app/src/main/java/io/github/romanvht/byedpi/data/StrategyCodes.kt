@@ -39,7 +39,7 @@ object StrategyCodes {
      *
      * @param sni значение SNI, которое автотест/диагностика подставляли
      * вместо {sni}: перед поиском плейсхолдер восстанавливается, иначе
-     * стратегии A15/C2 пака (с {sni}) не совпадут.
+     * стратегии B5/C2 пака (с {sni}) не совпадут.
      */
     fun displayFor(command: String, sni: String? = null): String {
         var probe = command

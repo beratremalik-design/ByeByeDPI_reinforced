@@ -11,8 +11,15 @@ Usage:
   python3 scripts/gen_pack.py <reference_pack.txt> [--verify]
 
   reference_pack.txt  30 strategies, one per line, leaders first
-  --verify            decode the generated blob and compare with the
-                      reference (must be 30/30)
+  --verify            do NOT rewrite anything: decode the blob from the
+                      EXISTING app/.../DefaultStrategyPack.kt and compare
+                      it with the reference (must be 30/30). This is a
+                      drift check between the committed blob and the
+                      developer's reference file.
+
+Without --verify the script REGENERATES DefaultStrategyPack.kt from the
+reference (run it after editing the reference; then bump VERSION if the
+pack semantics changed so autopilot re-runs).
 
 Note: the previous version of this script emitted Kotlin string literals
 WITHOUT separating commas -> "Expecting ','" compile errors. Fixed here:
@@ -141,7 +148,12 @@ def build(reference_path: str) -> str:
 
 
 def verify(kotlin_path: str, reference_path: str) -> bool:
-    """Декодировать блоб из сгенерированного файла и сверить с эталоном."""
+    """Декодировать блоб из СУЩЕСТВУЮЩЕГО файла и сверить с эталоном.
+
+    Ничего не перезаписывает: прежнее поведение (build -> write -> verify)
+    было самоподтверждающимся и не ловило расхождение коммитного блоба
+    с эталоном (реальный случай: строка C10).
+    """
     src = open(kotlin_path, encoding="utf-8").read()
     body = src.split("private val B64 = listOf(", 1)[1].split(").joinToString", 1)[0]
     chunks = re.findall(r'"([A-Za-z0-9+/=]+)"', body)
@@ -151,9 +163,16 @@ def verify(kotlin_path: str, reference_path: str) -> bool:
     data = xor_mask(masked)
     decoded = data.decode("utf-8").split("\n")
     ref = [l.rstrip("\n") for l in open(reference_path, encoding="utf-8") if l.strip()]
+    match = sum(1 for a, b in zip(decoded, ref) if a == b)
     ok = decoded == ref
-    print(f"verify: {sum(1 for a, b in zip(decoded, ref) if a == b)}/{len(ref)} строк совпало; "
-          f"{'OK' if ok else 'FAIL'}")
+    print(f"verify: {match}/{len(ref)} строк совпало; {'OK' if ok else 'FAIL'}")
+    if not ok:
+        for i, (a, b) in enumerate(zip(decoded, ref)):
+            if a != b:
+                print(f"  строка {i + 1}: блоб={a!r}")
+                print(f"            эталон={b!r}")
+        if len(decoded) != len(ref):
+            print(f"  число строк: блоб={len(decoded)}, эталон={len(ref)}")
     return ok
 
 
@@ -162,8 +181,9 @@ if __name__ == "__main__":
         print("usage: gen_pack.py <reference_pack.txt> [--verify]")
         sys.exit(2)
     ref = sys.argv[1]
+    if "--verify" in sys.argv:
+        # Проверка СУЩЕСТВУЮЩЕГО коммитного блоба, без перезаписи.
+        sys.exit(0 if verify(DST, ref) else 1)
     content = build(ref)
     open(DST, "w", encoding="utf-8").write(content)
     print(f"записан {DST} ({len(content)} байт)")
-    if "--verify" in sys.argv:
-        sys.exit(0 if verify(DST, ref) else 1)
