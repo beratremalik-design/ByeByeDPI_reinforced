@@ -120,6 +120,12 @@
             android:title="@string/title_test"
             android:summary="@string/summary_test"/>
 
+        <Preference
+            android:key="diagnostics"
+            android:icon="@drawable/ic_check"
+            android:title="@string/diagnostics"
+            android:summary="@string/diagnostics_summary"/>
+
     </androidx.preference.PreferenceCategory>
 
     <androidx.preference.PreferenceCategory

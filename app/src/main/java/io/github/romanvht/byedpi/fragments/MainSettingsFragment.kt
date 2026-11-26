@@ -9,6 +9,7 @@ import androidx.core.content.edit
 import androidx.preference.*
 import io.github.romanvht.byedpi.R
 import io.github.romanvht.byedpi.BuildConfig
+import io.github.romanvht.byedpi.activities.DiagnosticsActivity
 import io.github.romanvht.byedpi.activities.TestActivity
 import io.github.romanvht.byedpi.data.Mode
 import io.github.romanvht.byedpi.data.PrivateDnsState
@@ -48,6 +49,14 @@ class MainSettingsFragment : PreferenceFragmentCompat() {
         findPreferenceNotNull<Preference>("proxy_test")
             .setOnPreferenceClickListener {
                 val intent = Intent(context, TestActivity::class.java)
+                startActivity(intent)
+                true
+            }
+
+        // U4/D5: «Диагностика» — в настройках, не на главном окне
+        findPreferenceNotNull<Preference>("diagnostics")
+            .setOnPreferenceClickListener {
+                val intent = Intent(context, DiagnosticsActivity::class.java)
                 startActivity(intent)
                 true
             }

@@ -112,6 +112,30 @@
     <string name="cmd_pack_guard_title">Pack strategy</string>
     <string name="cmd_pack_guard_hint">Pack strategy %1$s is active. Enter your full argument line to replace it, or leave the field empty to keep it.</string>
     <string name="cmd_pack_edit_hint">This entry is a pack strategy (%1$s); its contents are not shown. Enter a full new argument line.</string>
+    <!-- D5/U4: diagnostics UI strings. NOTE: report CONTENT strings
+         (diag_warning, diag_* labels) intentionally live ONLY in values/
+         (Russian) — the report language is fixed Russian per decision,
+         while this UI follows the system locale. -->
+    <string name="diagnostics_summary">Run diagnostics and prepare a report for the developer</string>
+    <string name="diag_start">Start diagnostics</string>
+    <string name="diag_running">Diagnostics in progress, about a minute…</string>
+    <string name="diag_done">Done. Copy the report and send it to the developer.</string>
+    <string name="diag_failed">Diagnostics failed: %1$s</string>
+    <string name="diag_copy">Copy</string>
+    <string name="diag_share">Share</string>
+    <string name="diag_provider_hint">Carrier (optional, included in the report)</string>
+    <string name="diag_note_hint">Note — e.g.: “stall at the start of a Short, captured right after the stall”</string>
+    <string name="diag_fullpack_button">Full pack run ×2 (debug)</string>
+    <string name="diag_fullpack_running">Full pack run — 30–60 minutes, keep the app open</string>
+    <string name="diag_fullpack_done">Protocol saved: %1$s</string>
+    <string name="diag_fullpack_saved">Protocol saved to app files (path in status)</string>
+    <string name="diag_progress_engine">Preparing engine…</string>
+    <string name="diag_progress_env">Collecting environment…</string>
+    <string name="diag_progress_direct">Direct contrast test…</string>
+    <string name="diag_progress_checker">Domain checker (via bypass)…</string>
+    <string name="diag_progress_probe">Video-start probe…</string>
+    <string name="diag_progress_dns">DNS timing…</string>
+
     <string name="cmd_history_delete_unpinned">Delete unpinned</string>
     <string name="cmd_history_menu">Select action</string>
     <string name="cmd_history_apply">Apply</string>

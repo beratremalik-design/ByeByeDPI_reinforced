@@ -16,6 +16,14 @@ import java.net.Proxy
 import java.net.URL
 import kotlin.coroutines.coroutineContext
 
+/** Результат одной проверки домена с замером задержки (D5). */
+data class SiteCheckResult(
+    val site: String,
+    val successCount: Int,
+    val totalCount: Int,
+    val latencyMs: Long,
+)
+
 class SiteCheckUtils(
     private val proxyIp: String,
     private val proxyPort: Int
@@ -44,6 +52,103 @@ class SiteCheckUtils(
                 }
             }.awaitAll()
         }
+    }
+
+    /**
+     * D5: как checkSitesAsync, но дополнительно возвращает задержку
+     * каждого домена (от начала запроса до получения ответа/ошибки).
+     */
+    suspend fun checkSitesDetailedAsync(
+        sites: List<String>,
+        requestsCount: Int,
+        requestTimeout: Long,
+        concurrentRequests: Int = 20
+    ): List<SiteCheckResult> {
+        val semaphore = Semaphore(concurrentRequests)
+        return withContext(Dispatchers.IO) {
+            sites.map { site ->
+                async {
+                    semaphore.withPermit {
+                        coroutineContext.ensureActive()
+                        checkSiteAccessDetailed(site, requestsCount, requestTimeout)
+                    }
+                }
+            }.awaitAll()
+        }
+    }
+
+    private suspend fun checkSiteAccessDetailed(
+        site: String,
+        requestsCount: Int,
+        timeout: Long
+    ): SiteCheckResult = withContext(Dispatchers.IO) {
+        var responseCount = 0
+        val startedAt = System.currentTimeMillis()
+
+        val formattedUrl = if (site.startsWith("http://") || site.startsWith("https://")) site
+        else "https://$site"
+
+        val url = try {
+            URL(formattedUrl)
+        } catch (_: Exception) {
+            return@withContext SiteCheckResult(site, 0, requestsCount, 0)
+        }
+
+        val proxy = Proxy(Proxy.Type.SOCKS, InetSocketAddress(proxyIp, proxyPort))
+
+        repeat(requestsCount) {
+            coroutineContext.ensureActive()
+
+            var connection: HttpURLConnection? = null
+            try {
+                connection = url.openConnection(proxy) as HttpURLConnection
+                connection.connectTimeout = (timeout * 1000).toInt()
+                connection.readTimeout = (timeout * 1000).toInt()
+                connection.instanceFollowRedirects = true
+                connection.setRequestProperty("Connection", "close")
+
+                val responseCode = connection.responseCode
+                val declaredLength = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                    connection.contentLengthLong
+                } else {
+                    connection.contentLength.toLong()
+                }
+
+                var actualLength = 0L
+                try {
+                    val inputStream = if (responseCode in 200..299) connection.inputStream else connection.errorStream
+                    if (inputStream != null) {
+                        val buffer = ByteArray(8192)
+                        var bytesRead: Int
+
+                        val limit = if (declaredLength > 0) declaredLength else 1024L * 1024
+
+                        while (actualLength < limit) {
+                            coroutineContext.ensureActive()
+                            val remaining = limit - actualLength
+                            val toRead = if (remaining > buffer.size) buffer.size else remaining.toInt()
+                            bytesRead = inputStream.read(buffer, 0, toRead)
+                            if (bytesRead == -1) break
+                            actualLength += bytesRead
+                        }
+                    }
+                } catch (_: IOException) {
+                    // Stream reading failed
+                }
+
+                if (declaredLength <= 0L || actualLength >= declaredLength) {
+                    responseCount++
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                // ошибка соединения = домен не пройден; время фиксируется
+            } finally {
+                connection?.disconnect()
+            }
+        }
+
+        SiteCheckResult(site, responseCount, requestsCount, System.currentTimeMillis() - startedAt)
     }
 
     private suspend fun checkSiteAccess(
