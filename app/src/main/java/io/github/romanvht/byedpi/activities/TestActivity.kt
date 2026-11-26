@@ -22,12 +22,14 @@ import io.github.romanvht.byedpi.R
 import io.github.romanvht.byedpi.adapters.StrategyResultAdapter
 import io.github.romanvht.byedpi.data.AppStatus
 import io.github.romanvht.byedpi.data.Mode
+import io.github.romanvht.byedpi.data.StrategyCodes
 import io.github.romanvht.byedpi.data.StrategyResult
 import io.github.romanvht.byedpi.data.TestState
 import io.github.romanvht.byedpi.services.ServiceManager
 import io.github.romanvht.byedpi.services.TestService
 import io.github.romanvht.byedpi.services.appStatus
 import io.github.romanvht.byedpi.utility.HistoryUtils
+import io.github.romanvht.byedpi.utility.getStringNotNull
 import io.github.romanvht.byedpi.utility.getPreferences
 import io.github.romanvht.byedpi.utility.mode
 import kotlinx.coroutines.Dispatchers
@@ -210,10 +212,12 @@ class TestActivity : BaseActivity() {
             return
         }
 
+        val sni = prefs.getStringNotNull("byedpi_proxytest_sni", "ya.ru")
         val sb = StringBuilder()
 
         completeStrategies.forEach { strategy ->
-            sb.appendLine("${strategy.command}\n")
+            // U2: стратегии пака копируются кодами A1..C10, не сырой строкой
+            sb.appendLine(StrategyCodes.displayFor(strategy.command, sni) + "\n")
 
             strategy.siteResults.forEach { site ->
                 sb.appendLine("${site.site} - ${site.successCount}/${site.totalCount}")

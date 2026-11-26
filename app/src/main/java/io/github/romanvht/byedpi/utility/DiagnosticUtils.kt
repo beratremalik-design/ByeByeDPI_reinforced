@@ -8,6 +8,7 @@ import io.github.romanvht.byedpi.R
 import io.github.romanvht.byedpi.core.ByeDpiProxyUIPreferences
 import io.github.romanvht.byedpi.data.Mode
 import io.github.romanvht.byedpi.data.PrivateDnsState
+import io.github.romanvht.byedpi.data.StrategyCodes
 
 object DiagnosticUtils {
     fun buildReport(context: Context): String {
@@ -20,6 +21,9 @@ object DiagnosticUtils {
         } else {
             ByeDpiProxyUIPreferences(preferences).uiargs.drop(1).joinToString(" ")
         }
+        // U2: стратегия пака — только кодом A1..C10; своя строка пользователя
+        // показывается как есть.
+        val strategyDisplay = StrategyCodes.displayFor(strategy, preferences.getStringNotNull("byedpi_proxytest_sni", "ya.ru"))
         val (ip, port) = preferences.getProxyIpAndPort()
         val activeLists = DomainListUtils.getLists(context)
             .filter { it.isActive }
@@ -41,7 +45,7 @@ object DiagnosticUtils {
             appendLine()
             appendLine(context.getString(R.string.diagnostic_app_settings))
             appendLine(value(context, R.string.diagnostic_command_line, state(context, cmdEnabled)))
-            appendLine(value(context, R.string.diagnostic_strategy, strategy))
+            appendLine(value(context, R.string.diagnostic_strategy, strategyDisplay))
             appendLine(value(context, R.string.mode_setting, modeName(context, mode)))
             appendLine(value(context, R.string.private_dns, privateDnsDescription(context, privateDnsState)))
             if (mode == Mode.VPN) {

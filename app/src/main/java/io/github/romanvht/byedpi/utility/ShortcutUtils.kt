@@ -8,6 +8,7 @@ import android.graphics.drawable.Icon
 import android.os.Build
 import io.github.romanvht.byedpi.R
 import io.github.romanvht.byedpi.activities.ToggleActivity
+import io.github.romanvht.byedpi.data.StrategyCodes
 
 object ShortcutUtils {
 
@@ -41,7 +42,10 @@ object ShortcutUtils {
                         putExtra("strategy", strategy.text)
                     }
 
-                    val fullLabel = strategy.name?.takeIf { it.isNotBlank() } ?: strategy.text
+                    // U2: без имени — код пака (A1..C10); сырая строка в
+                    // ярлыках лаунчера не показывается
+                    val fullLabel = strategy.name?.takeIf { it.isNotBlank() }
+                        ?: StrategyCodes.displayFor(strategy.text)
                     val shortLabel = if (fullLabel.length > 15) fullLabel.take(15) + "..." else fullLabel
                     val longLabel = if (fullLabel.length > 30) fullLabel.take(30) + "..." else fullLabel
 

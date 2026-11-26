@@ -8,8 +8,7 @@
         android:title="@string/command_line_arguments"
         android:dialogTitle="@string/command_line_arguments"
         android:inputType="textMultiLine"
-        app:iconSpaceReserved="false"
-        app:useSimpleSummaryProvider="true" />
+        app:iconSpaceReserved="false" />
 
     <Preference
         android:key="cmd_editor_buttons"

@@ -13,10 +13,13 @@ import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import io.github.romanvht.byedpi.R
+import io.github.romanvht.byedpi.data.StrategyCodes
 import io.github.romanvht.byedpi.data.StrategyResult
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import io.github.romanvht.byedpi.utility.ClipboardUtils
+import io.github.romanvht.byedpi.utility.getStringNotNull
+import io.github.romanvht.byedpi.utility.getPreferences
 
 class StrategyResultAdapter(
     private val context: Context,
@@ -25,6 +28,10 @@ class StrategyResultAdapter(
 
     private var isTesting = false
     private val strategies = mutableListOf<StrategyResult>()
+
+    // U2: стратегии пака показываются кодами A1..C10, не сырыми строками.
+    private val testSni: String =
+        context.getPreferences().getStringNotNull("byedpi_proxytest_sni", "ya.ru")
 
     class StrategyViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val commandTextView: TextView = view.findViewById(R.id.commandTextView)
@@ -63,7 +70,8 @@ class StrategyResultAdapter(
     override fun onBindViewHolder(holder: StrategyViewHolder, position: Int) {
         val strategy = strategies[position]
 
-        holder.commandTextView.text = strategy.command
+        // U2: стратегия пака — только код (A1..C10), не сырая строка
+        holder.commandTextView.text = StrategyCodes.displayFor(strategy.command, testSni)
 
         if (strategy.totalRequests > 0) {
             holder.progressLayout.visibility = View.VISIBLE
@@ -183,7 +191,8 @@ class StrategyResultAdapter(
             .setItems(menuItems) { _, which ->
                 when (which) {
                     0 -> onApply(command)
-                    1 -> ClipboardUtils.copy(context, command, "command")
+                    // U2: копируется код пака (A1..C10), не сырая строка
+                    1 -> ClipboardUtils.copy(context, StrategyCodes.displayFor(command, testSni), "command")
                 }
             }
             .show()

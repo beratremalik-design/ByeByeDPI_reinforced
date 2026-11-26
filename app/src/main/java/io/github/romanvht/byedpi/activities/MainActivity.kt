@@ -15,7 +15,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.ListView
-import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
@@ -220,10 +219,6 @@ class MainActivity : BaseActivity() {
             startActivity(Intent(this, TestActivity::class.java))
         }
 
-        binding.probeButton?.setOnClickListener {
-            runQuickProbe()
-        }
-
         binding.domainListsButton.setOnClickListener {
             val intent = Intent(this, TestSettingsActivity::class.java)
             intent.putExtra("open_fragment", "domain_lists")
@@ -292,11 +287,6 @@ class MainActivity : BaseActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-            R.id.action_diagnostics -> {
-                showDiagnostics()
-                true
-            }
-
             R.id.action_save_logs -> {
                 val intent = Intent(this, FileActivity::class.java)
                 intent.putExtra(FileActivity.EXTRA_MODE, FileActivity.MODE_CREATE)
@@ -326,40 +316,6 @@ class MainActivity : BaseActivity() {
         }
     }
 
-    private fun showDiagnostics() {
-        val report = DiagnosticUtils.buildReport(this)
-        val padding = (24 * resources.displayMetrics.density).toInt()
-
-        val textView = TextView(this).apply {
-            text = report
-            setPadding(padding, padding / 2, padding, padding / 2)
-        }
-
-        val scrollView = ScrollView(this).apply {
-            addView(textView)
-        }
-
-        val dialog = AlertDialog.Builder(this)
-            .setTitle(R.string.diagnostics)
-            .setView(scrollView)
-            .setPositiveButton(R.string.diagnostic_copy) { _, _ ->
-                ClipboardUtils.copy(this, report, getString(R.string.diagnostics))
-            }
-            .setNegativeButton(android.R.string.cancel, null)
-            .create()
-
-        dialog.setOnShowListener {
-            val copyButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-            val cancelButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
-            copyButton.nextFocusLeftId = cancelButton.id
-            copyButton.nextFocusRightId = cancelButton.id
-            cancelButton.nextFocusLeftId = copyButton.id
-            cancelButton.nextFocusRightId = copyButton.id
-            copyButton.requestFocus()
-        }
-        dialog.show()
-    }
-
     private fun start() {
         if (TestService.isRunning) {
             Toast.makeText(this, R.string.test_unavailable, Toast.LENGTH_SHORT).show()
@@ -381,63 +337,6 @@ class MainActivity : BaseActivity() {
 
     private fun stop() {
         ServiceManager.stop()
-    }
-
-    /** D3: быстрая проба старта видео (6 доменов, 1 запрос). */
-    private var probeRunning = false
-
-    private fun runQuickProbe() {
-        if (TestService.isRunning) {
-            Toast.makeText(this, R.string.test_unavailable, Toast.LENGTH_SHORT).show()
-            return
-        }
-        if (probeRunning) return
-        probeRunning = true
-        Toast.makeText(this, R.string.probe_running, Toast.LENGTH_SHORT).show()
-
-        lifecycleScope.launch {
-            try {
-                val results = QuickProbe.run(this@MainActivity)
-                showProbeDialog(results)
-            } catch (e: Exception) {
-                Log.e(TAG, "Quick probe failed", e)
-                Toast.makeText(this@MainActivity, R.string.probe_failed, Toast.LENGTH_SHORT).show()
-            } finally {
-                probeRunning = false
-            }
-        }
-    }
-
-    private fun showProbeDialog(results: List<SiteResult>) {
-        val passed = results.sumOf { it.successCount }
-        val text = buildString {
-            appendLine(getString(R.string.probe_result_summary, passed, results.size))
-            appendLine()
-            results.forEach { site ->
-                appendLine("${site.site} — ${site.successCount}/${site.totalCount}")
-            }
-            appendLine()
-            if (passed == results.size) {
-                appendLine(getString(R.string.probe_all_ok))
-            } else {
-                results.filter { it.successCount < it.totalCount }.forEach { site ->
-                    when {
-                        site.site == "youtubei.googleapis.com" ->
-                            appendLine(getString(R.string.probe_youtubei_fail))
-                        site.site.startsWith("rr1---sn-xguxaxjvh-gufl") ->
-                            appendLine(getString(R.string.probe_gufl_fail))
-                        else ->
-                            appendLine(getString(R.string.probe_other_fail, site.site))
-                    }
-                }
-            }
-        }
-
-        AlertDialog.Builder(this)
-            .setTitle(getString(R.string.probe_result_title, passed, results.size))
-            .setMessage(text)
-            .setPositiveButton(android.R.string.ok, null)
-            .show()
     }
 
     private fun updateStatus() {
@@ -511,9 +410,17 @@ class MainActivity : BaseActivity() {
             binding.strategyButtonText.maxLines = 2
         }
 
-        binding.strategyButtonText.text = currentCmdArgs.ifBlank { getString(R.string.main_strategy_picker) }
+        // U2: стратегия пака — только код (A1..C10); своя строка
+        // пользователя показывается как есть (осознанный ввод).
+        binding.strategyButtonText.text = StrategyCodes
+            .displayFor(currentCmdArgs, testSni())
+            .ifBlank { getString(R.string.main_strategy_picker) }
         binding.strategyButton.visibility = View.VISIBLE
     }
+
+    /** SNI автотеста — нужен для сопоставления строк пака с {sni}. */
+    private fun testSni(): String =
+        getPreferences().getStringNotNull("byedpi_proxytest_sni", "ya.ru")
 
     private fun showStrategyPicker() {
         val pinned = historyUtils.getPinnedHistory()
@@ -552,7 +459,8 @@ class MainActivity : BaseActivity() {
                     textView.maxLines = 3
                 }
 
-                textView.text = command.text
+                // U2: стратегии пака — только коды A1..C10, не сырая строка
+                textView.text = StrategyCodes.displayFor(command.text, testSni())
                 dividerView.visibility = if (position == count - 1) View.GONE else View.VISIBLE
 
                 return view

@@ -34,7 +34,8 @@ class ByeDpiProxyCmdPreferences(val args: Array<String>) : ByeDpiProxyPreference
                 if (cmdPort == null) addAll(listOf("--port", port))
             }
 
-            Log.d("ProxyPref", "CMD: ${args.joinToString(" ")}")
+            // U2: полный текст аргументов в лог не попадает (только счётчик)
+            Log.d("ProxyPref", "CMD: ${args.size} args")
             Log.d("ProxyPref", "Added from settings: ${prefix.joinToString(" ")}")
 
             return (listOf("ciadpi") + prefix + args).toTypedArray()
@@ -160,7 +161,8 @@ class ByeDpiProxyUIPreferences(val settings: UISettings = UISettings()) : ByeDpi
                 args.add("-An")
             }
 
-            Log.d("ProxyPref", "UI to cmd: ${args.joinToString(" ")}")
+            // U2: полный текст аргументов в лог не попадает (только счётчик)
+            Log.d("ProxyPref", "UI to cmd: ${args.size} args")
             return args.toTypedArray()
         }
 }

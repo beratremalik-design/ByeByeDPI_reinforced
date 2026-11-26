@@ -182,8 +182,13 @@ object AutopilotManager {
 
     private fun notifyProposal(context: Context, cmd: String) {
         try {
-            // Top-level функция из utility/NotificationUtils.kt (тот же пакет)
-            io.github.romanvht.byedpi.utility.showAutopilotProposal(context, cmd)
+            // Top-level функция из utility/NotificationUtils.kt (тот же пакет).
+            // В тексте уведомления — только код (A1..C10), U2.
+            io.github.romanvht.byedpi.utility.showAutopilotProposal(
+                context,
+                StrategyCodes.displayFor(cmd),
+                cmd
+            )
         } catch (e: Exception) {
             Log.e(TAG, "Failed to show autopilot proposal", e)
         }

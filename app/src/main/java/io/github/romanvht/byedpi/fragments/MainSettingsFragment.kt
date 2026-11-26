@@ -12,6 +12,7 @@ import io.github.romanvht.byedpi.BuildConfig
 import io.github.romanvht.byedpi.activities.TestActivity
 import io.github.romanvht.byedpi.data.Mode
 import io.github.romanvht.byedpi.data.PrivateDnsState
+import io.github.romanvht.byedpi.data.StrategyCodes
 import io.github.romanvht.byedpi.utility.*
 import androidx.core.net.toUri
 
@@ -121,6 +122,13 @@ class MainSettingsFragment : PreferenceFragmentCompat() {
         val uiSettings = findPreferenceNotNull<Preference>("byedpi_ui_settings")
         val cmdSettings = findPreferenceNotNull<Preference>("byedpi_cmd_settings")
         val proxyTest = findPreferenceNotNull<Preference>("proxy_test")
+
+        // U2: в строке редактора команд показываем код стратегии пака
+        // (A1..C10); своя строка пользователя отображается как есть.
+        cmdSettings.summary = StrategyCodes.displayFor(
+            requireContext().getPreferences().getCmdArgs(),
+            requireContext().getPreferences().getStringNotNull("byedpi_proxytest_sni", "ya.ru")
+        )
 
         if (cmdEnable) {
             val (cmdIp, cmdPort) = sharedPreferences?.checkIpAndPortInCmd() ?: Pair(null, null)

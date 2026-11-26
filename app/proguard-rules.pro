@@ -32,3 +32,13 @@
 -adaptclassstrings
 -adaptresourcefilecontents **.xml,**.json
 -adaptresourcefilenames **.xml,**.json
+# U2: вырезать вызовы android.util.Log из релизной сборки (в debug-APK,
+# которые распространяются, чувствительные вызовы удалены в коде).
+-assumenosideeffects class android.util.Log {
+    public static *** v(...);
+    public static *** d(...);
+    public static *** i(...);
+    public static *** w(...);
+    public static *** e(...);
+    public static *** wtf(...);
+}

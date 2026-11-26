@@ -12,6 +12,7 @@ import io.github.romanvht.byedpi.data.Mode
 import io.github.romanvht.byedpi.data.RESTART_ACTION
 import io.github.romanvht.byedpi.data.START_ACTION
 import io.github.romanvht.byedpi.data.STOP_ACTION
+import io.github.romanvht.byedpi.data.StrategyCodes
 import io.github.romanvht.byedpi.receiver.ServiceActionReceiver
 import io.github.romanvht.byedpi.services.ServiceManager
 import io.github.romanvht.byedpi.services.appStatus
@@ -119,7 +120,8 @@ class ToggleActivity : Activity() {
         val current = prefs.getCmdArgs()
         if (strategy != null && strategy != current) {
             prefs.edit(commit = true) { putString("byedpi_cmd_args", strategy) }
-            Log.i(TAG, "Strategy updated to: $strategy")
+            // U2: в лог не попадает сырая строка стратегии
+            Log.i(TAG, "Strategy updated: ${StrategyCodes.displayFor(strategy)}")
             return true
         }
         return false

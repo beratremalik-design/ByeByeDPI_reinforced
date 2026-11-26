@@ -108,6 +108,10 @@
     <string name="cmd_history_title">Command history</string>
     <string name="cmd_history_title_summary">Tap to manage history</string>
     <string name="cmd_history_delete_all">Delete all history</string>
+    <!-- U2: pack-strategy guard dialog (raw sequence is never revealed) -->
+    <string name="cmd_pack_guard_title">Pack strategy</string>
+    <string name="cmd_pack_guard_hint">Pack strategy %1$s is active. Enter your full argument line to replace it, or leave the field empty to keep it.</string>
+    <string name="cmd_pack_edit_hint">This entry is a pack strategy (%1$s); its contents are not shown. Enter a full new argument line.</string>
     <string name="cmd_history_delete_unpinned">Delete unpinned</string>
     <string name="cmd_history_menu">Select action</string>
     <string name="cmd_history_apply">Apply</string>
@@ -207,17 +211,6 @@
     <string name="domain_list_reset">Reset lists</string>
     <string name="domain_list_reset_done">Lists have been reset</string>
     <string name="main_btn_test">Test</string>
-    <!-- Quick video-start probe (D3) -->
-    <string name="main_btn_probe">Probe</string>
-    <string name="probe_running">Quick start probe is running…</string>
-    <string name="probe_failed">Quick probe failed</string>
-    <string name="probe_result_title">Start probe: %1$d/%2$d</string>
-    <string name="probe_result_summary">Video/shorts start domains, 1 request per domain:</string>
-    <string name="probe_all_ok">Video start should proceed without stalls</string>
-    <string name="probe_youtubei_fail">youtubei unavailable — stalls at the very beginning of videos are expected (the player gets no API response)</string>
-    <string name="probe_gufl_fail">gufl did not respond — a known chronic flake, noise; not a sign of degradation</string>
-    <string name="probe_other_fail">%1$s did not respond — may slow down the video start</string>
-
     <string name="main_btn_list">Lists</string>
     <string name="donate">Donate</string>
     <string name="donate_message">If the app has been useful to you, you can buy me a cup of coffee ☕️</string>

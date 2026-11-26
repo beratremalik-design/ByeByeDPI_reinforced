@@ -30,7 +30,7 @@ const val AUTOPILOT_NOTIFICATION_ID = 5
  * Показывается, когда автопилот не может применить стратегию молча
  * (у пользователя своя стратегия или UI-режим).
  */
-fun showAutopilotProposal(context: Context, command: String) {
+fun showAutopilotProposal(context: Context, display: String, command: String) {
     registerNotificationChannel(context, AUTOPILOT_CHANNEL, R.string.autopilot_channel)
     val manager = context.getSystemService(NotificationManager::class.java) ?: return
 
@@ -40,12 +40,14 @@ fun showAutopilotProposal(context: Context, command: String) {
     val declineIntent = Intent(context, AutopilotReceiver::class.java)
         .setAction(AutopilotReceiver.ACTION_DECLINE)
 
+    // U2: в тексте уведомления — только условный код стратегии (A1..C10),
+    // сама последовательность параметров не раскрывается.
     val notification = NotificationCompat.Builder(context, AUTOPILOT_CHANNEL)
         .setSmallIcon(R.drawable.ic_notification)
         .setContentTitle(context.getString(R.string.autopilot_proposal_title))
-        .setContentText(command)
+        .setContentText(display)
         .setStyle(NotificationCompat.BigTextStyle()
-            .bigText(context.getString(R.string.autopilot_proposal_text) + "\n\n" + command))
+            .bigText(context.getString(R.string.autopilot_proposal_text) + "\n\n" + display))
         .addAction(0, context.getString(R.string.autopilot_apply),
             PendingIntent.getBroadcast(
                 context, 0, applyIntent,

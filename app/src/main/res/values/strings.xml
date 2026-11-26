@@ -108,6 +108,10 @@
     <string name="cmd_history_title">Список стратегий</string>
     <string name="cmd_history_title_summary">Нажмите для управления историей</string>
     <string name="cmd_history_delete_all">Очистить историю</string>
+    <!-- U2: диалог-охрана стратегии пака (последовательность не раскрывается) -->
+    <string name="cmd_pack_guard_title">Стратегия из пака</string>
+    <string name="cmd_pack_guard_hint">Сейчас действует стратегия пака %1$s. Введите свою строку аргументов целиком, чтобы заменить её, или оставьте поле пустым, чтобы оставить её.</string>
+    <string name="cmd_pack_edit_hint">Запись — стратегия пака (%1$s), её содержимое не показывается. Введите новую строку аргументов целиком.</string>
     <string name="cmd_history_delete_unpinned">Удалить незакрепленные</string>
     <string name="cmd_history_menu">Выберите действие</string>
     <string name="cmd_history_apply">Применить</string>
@@ -207,17 +211,6 @@
     <string name="domain_list_reset">Сбросить списки</string>
     <string name="domain_list_reset_done">Списки сброшены</string>
     <string name="main_btn_test">Подбор</string>
-    <!-- Быстрая проба старта видео (D3) -->
-    <string name="main_btn_probe">Проба</string>
-    <string name="probe_running">Быстрая проверка старта…</string>
-    <string name="probe_failed">Не удалось выполнить быструю проверку</string>
-    <string name="probe_result_title">Проба старта: %1$d/%2$d</string>
-    <string name="probe_result_summary">Проверка доменов старта видео/шортса, 1 запрос на домен:</string>
-    <string name="probe_all_ok">Старт видео должен проходить без ожиданий</string>
-    <string name="probe_youtubei_fail">youtubei недоступен — ожидаемы подвисания именно в начале роликов (плеер не получает ответ API)</string>
-    <string name="probe_gufl_fail">gufl не ответил — известный хронический флейк, шум; не признак деградации</string>
-    <string name="probe_other_fail">%1$s не ответил — может замедлять старт ролика</string>
-
     <string name="main_btn_list">Списки</string>
     <string name="donate">Поддержать</string>
     <string name="donate_message">Если приложение оказалось для вас полезным, можете угостить меня чашечкой кофе ☕️</string>
