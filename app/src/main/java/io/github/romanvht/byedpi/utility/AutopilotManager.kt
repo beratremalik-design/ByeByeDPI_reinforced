@@ -7,6 +7,7 @@ import androidx.core.content.edit
 import com.google.gson.Gson
 import io.github.romanvht.byedpi.R
 import io.github.romanvht.byedpi.data.DefaultStrategyPack
+import io.github.romanvht.byedpi.data.StrategyCodes
 import io.github.romanvht.byedpi.data.StrategyResult
 import io.github.romanvht.byedpi.data.RESTART_ACTION
 import io.github.romanvht.byedpi.services.NativeEngine
@@ -76,7 +77,7 @@ object AutopilotManager {
             else -> context.getString(
                 R.string.autopilot_state_ok,
                 state.bestIndex + 1,
-                DefaultStrategyPack.NAMES.getOrElse(state.bestIndex) { "?" },
+                StrategyCodes.codeFor(state.bestIndex),
                 state.bestScore,
                 state.bestTotal,
             )
@@ -162,7 +163,6 @@ object AutopilotManager {
     fun apply(context: Context, index: Int) {
         val prefs = context.getPreferences()
         val cmd = DefaultStrategyPack.PACK.getOrNull(index) ?: return
-        val name = DefaultStrategyPack.NAMES.getOrElse(index) { "#${index + 1}" }
         val current = prefs.getCmdArgs()
         val previousApplied = prefs.getStringNotNull(KEY_APPLIED, "")
         val canSilentlyApply = current == DEFAULT_CMD_ARGS || current == previousApplied
@@ -173,9 +173,9 @@ object AutopilotManager {
                 putString(KEY_APPLIED, cmd)
             }
             HistoryUtils(context).addCommand(cmd)
-            Log.i(TAG, "Autopilot applied strategy #$index ($name)")
+            Log.i(TAG, "Autopilot applied strategy ${StrategyCodes.codeFor(index)}")
         } else {
-            Log.i(TAG, "Autopilot proposes strategy #$index ($name): current args belong to user")
+            Log.i(TAG, "Autopilot proposes strategy ${StrategyCodes.codeFor(index)}: current args belong to user")
             notifyProposal(context, cmd)
         }
     }
