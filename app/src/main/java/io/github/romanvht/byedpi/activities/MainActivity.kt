@@ -235,6 +235,7 @@ class MainActivity : BaseActivity() {
             requestBatteryOptimization()
         }
 
+        migrateDefaults()
         migrateFakeSni()
 
         // D2: тихий автоподбор стратегии из встроенного пака при запуске.
@@ -511,6 +512,39 @@ class MainActivity : BaseActivity() {
             PermissionUtils.requestBatteryOptimization(this)
             preferences.edit { putBoolean(BATTERY_OPTIMIZATION_REQUESTED, true) }
         }
+    }
+
+    /**
+     * U3: дефолты свежей установки (принцип D1/D4 — существующие
+     * установки не трогаем). Признак существующей установки — флаг
+     * миграции SNI (D4): он пишется при первом запуске уже работавшей
+     * версии. Нет флага — свежая установка: применяем белый список
+     * (YouTube + YouTube Music) и автоподключение при открытии.
+     * Явно заданные пользователем значения не перезаписываются.
+     */
+    private fun migrateDefaults() {
+        val preferences = getPreferences()
+        if (preferences.getBoolean("defaults_v3_applied", false)) return
+
+        val isFreshInstall = !preferences.getBoolean("byedpi_sni_migrated_v1", false)
+        if (isFreshInstall) {
+            if (!preferences.contains("applist_type") && !preferences.contains("selected_apps")) {
+                preferences.edit {
+                    putString("applist_type", "whitelist")
+                    putStringSet(
+                        "selected_apps",
+                        setOf(
+                            "com.google.android.youtube",
+                            "com.google.android.apps.youtube.music"
+                        )
+                    )
+                }
+            }
+            if (!preferences.contains("auto_connect")) {
+                preferences.edit { putBoolean("auto_connect", true) }
+            }
+        }
+        preferences.edit { putBoolean("defaults_v3_applied", true) }
     }
 
     /**
